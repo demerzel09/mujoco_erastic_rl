@@ -1,0 +1,6 @@
+/.venv/
+*.pyc
+toy_text/
+videos/
+
+

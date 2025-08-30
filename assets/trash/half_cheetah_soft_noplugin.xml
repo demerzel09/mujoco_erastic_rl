@@ -1,0 +1,137 @@
+<mujoco model="cheetah_soft">
+  <!-- global options-->
+  <compiler angle="radian" coordinate="local" inertiafromgeom="true"
+            settotalmass="14"/>
+  <option timestep="0.001" integrator="implicitfast"
+          gravity="0 0 -9.81" solver="CG" iterations="20"/>
+  <size nstack="300000"/>
+
+  <!-- defaults -->
+  <default>
+    <!-- contacts: compliant & under-damped -->
+    <geom solref="0.02 1" solimp="0.96 0.99 0.001"
+          friction=".9 .4 .1"/>
+    <!-- joints (hinges/slides) -->
+    <joint armature=".05" damping=".01"/>
+    <!-- motors -->
+    <motor ctrllimited="true" ctrlrange="-1 1"/>
+  </default>
+
+  <!-- assets (visual) -->
+  <asset>
+    <texture builtin="checker" width="100" height="100"
+             rgb1="0 0 0" rgb2="0.8 0.8 0.8" name="texplane"/>
+    <material name="MatPlane" texture="texplane" texrepeat="60 60"
+              specular="0.2" shininess="0.1" reflectance="0.5"/>
+  </asset>
+
+  <!-- world + half-cheetah -->
+  <worldbody>
+    <!-- ground -->
+    <geom name="floor" type="plane" pos="0 0 0"
+          size="40 40 1" material="MatPlane"/>
+
+    <!-- root body -->
+    <body name="torso" pos="0 0 .7">
+      <!-- tracking cam -->
+      <camera name="track" mode="trackcom" pos="0 -3 0.35"/>
+
+      <!-- root joints -->
+      <joint name="rootx" type="slide" axis="1 0 0"/>
+      <joint name="rootz" type="slide" axis="0 0 1"/>
+      <joint name="rooty" type="hinge" axis="0 1 0"/>
+
+      <!-- torso flex (3×2×2 grid) -->
+      <flexcomp name="torso_flex" type="grid" dof="trilinear"
+                count="3 2 2" spacing="0.35 0.12 0.12"
+                radius="0.06" mass="6"
+                rgba="0.7 0.5 0.3 1">
+        <edge stiffness="8e5" damping="2e4"/>
+      </flexcomp>
+
+      <!-- small rigid head for visual -->
+      <geom name="head" type="capsule"
+            pos=".6 0 .1" size="0.046 0.15"
+            axisangle="0 1 0 .87"/>
+
+      <!-- ───────── rear leg ───────── -->
+      <body name="bthigh" pos="-.5 0 0">
+        <joint name="bthigh" type="hinge" axis="0 1 0"
+               range="-.52 1.05"/>
+        <flexcomp name="bthigh_flex" type="grid" dof="trilinear"
+                  count="4 2 2" spacing="0.12 0.08 0.08"
+                  radius="0.05" mass="1.5"
+                  rgba="0.2 0.3 0.8 1">
+          <edge stiffness="6e5" damping="1.5e4"/>
+        </flexcomp>
+
+        <body name="bshin" pos=".16 0 -.25">
+          <joint name="bshin" type="hinge" axis="0 1 0"
+                 range="-.785 .785"/>
+          <flexcomp name="bshin_flex" type="grid" dof="trilinear"
+                    count="4 2 2" spacing="0.12 0.06 0.06"
+                    radius="0.045" mass="1.0"
+                    rgba="0.9 0.6 0.6 1">
+            <edge stiffness="5e5" damping="1.2e4"/>
+          </flexcomp>
+
+          <body name="bfoot" pos="-.28 0 -.14">
+            <joint name="bfoot" type="hinge" axis="0 1 0"
+                   range="-.4 .785"/>
+            <flexcomp name="bfoot_flex" type="grid" dof="trilinear"
+                      count="3 2 2" spacing="0.09 0.05 0.05"
+                      radius="0.04" mass="0.4"
+                      rgba="0.9 0.6 0.6 1">
+              <edge stiffness="4e5" damping="1e4"/>
+            </flexcomp>
+          </body>
+        </body>
+      </body>
+
+      <!-- ───────── front leg ───────── -->
+      <body name="fthigh" pos=".5 0 0">
+        <joint name="fthigh" type="hinge" axis="0 1 0"
+               range="-1 .7"/>
+        <flexcomp name="fthigh_flex" type="grid" dof="trilinear"
+                  count="4 2 2" spacing="0.12 0.08 0.08"
+                  radius="0.05" mass="1.5"
+                  rgba="0.2 0.3 0.8 1">
+          <edge stiffness="6e5" damping="1.5e4"/>
+        </flexcomp>
+
+        <body name="fshin" pos="-.14 0 -.24">
+          <joint name="fshin" type="hinge" axis="0 1 0"
+                 range="-1.2 .87"/>
+          <flexcomp name="fshin_flex" type="grid" dof="trilinear"
+                    count="4 2 2" spacing="0.12 0.06 0.06"
+                    radius="0.045" mass="1.0"
+                    rgba="0.9 0.6 0.6 1">
+            <edge stiffness="5e5" damping="1.2e4"/>
+          </flexcomp>
+
+          <body name="ffoot" pos=".13 0 -.18">
+            <joint name="ffoot" type="hinge" axis="0 1 0"
+                   range="-.5 .5"/>
+            <flexcomp name="ffoot_flex" type="grid" dof="trilinear"
+                      count="3 2 2" spacing="0.09 0.05 0.05"
+                      radius="0.04" mass="0.4"
+                      rgba="0.9 0.6 0.6 1">
+              <edge stiffness="4e5" damping="1e4"/>
+            </flexcomp>
+          </body>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+
+  <!-- actuators (same joints as rigid HC) -->
+  <actuator>
+    <motor joint="bthigh" gear="120"/>
+    <motor joint="bshin"  gear="90"/>
+    <motor joint="bfoot"  gear="60"/>
+    <motor joint="fthigh" gear="120"/>
+    <motor joint="fshin"  gear="60"/>
+    <motor joint="ffoot"  gear="30"/>
+  </actuator>
+
+</mujoco>

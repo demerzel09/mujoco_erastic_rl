@@ -1,0 +1,165 @@
+<!-- Half-Cheetah with Elastic Bodies (MuJoCo 3.x) -->
+<mujoco model="cheetah_soft">
+  <!-- ❶ enable solid elasticity plugin -->
+  <extension>
+    <plugin plugin="mujoco.elasticity.solid"/>
+  </extension>
+
+  <!-- ❷ global settings -->
+  <compiler angle="radian" coordinate="local" inertiafromgeom="true" settotalmass="14"/>
+  <option integrator="implicitfast" solver="CG" iterations="20"
+          timestep="0.001" gravity="0 0 -9.81"/>
+  <size nstack="300000" nuser_geom="1"/>
+
+  <!-- ❸ soft-contact defaults -->
+  <default>
+    <joint armature=".1" damping=".01" limited="true"
+           solimplimit="0 .8 .03" solreflimit=".02 1" stiffness="8"/>
+    <geom  solimp="0.0 0.95 0.001" solref="0.02 1"
+           friction=".8 .4 .1" contype="1" condim="3"/>
+    <motor ctrllimited="true" ctrlrange="-1 1"/>
+  </default>
+
+  <!-- ❹ assets (unchanged …) -->
+  <asset>
+    <texture builtin="gradient" height="100" rgb1="1 1 1" rgb2="0 0 0"
+             type="skybox" width="100"/>
+    <texture builtin="flat" height="1278" mark="cross" markrgb="1 1 1"
+             name="texgeom" random="0.01" rgb1="0.8 0.6 0.4"
+             rgb2="0.8 0.6 0.4" type="cube" width="127"/>
+    <texture builtin="checker" height="100" name="texplane"
+             rgb1="0 0 0" rgb2="0.8 0.8 0.8" type="2d" width="100"/>
+    <material name="MatPlane" reflectance="0.5" shininess="1"
+              specular="1" texrepeat="60 60" texture="texplane"/>
+    <material name="geom" texture="texgeom" texuniform="true"/>
+  </asset>
+
+  <worldbody>
+    <!-- ground plane -->
+    <light cutoff="100" diffuse="1 1 1" dir="-0 0 -1.3"
+           directional="true" exponent="1" pos="0 0 1.3"
+           specular=".1 .1 .1"/>
+    <geom conaffinity="1" condim="3" material="MatPlane" name="floor"
+          pos="0 0 0" rgba="0.8 0.9 0.8 1" size="40 40 40" type="plane"/>
+
+    <!-- ─────────── torso/root ─────────── -->
+    <body name="torso" pos="0 0 .7">
+      <camera name="track" mode="trackcom" pos="0 -3 0.3"
+              xyaxes="1 0 0 0 0 1"/>
+
+      <!-- root joints unchanged -->
+      <joint name="rootx" type="slide"  axis="1 0 0" stiffness="0"
+             damping="0" armature="0" limited="false"/>
+      <joint name="rootz" type="slide"  axis="0 0 1" stiffness="0"
+             damping="0" armature="0" limited="false"/>
+      <joint name="rooty" type="hinge"  axis="0 1 0" stiffness="0"
+             damping="0" armature="0" limited="false"/>
+
+      <!-- FLEXIBLE torso (3×1×1 tet grid) -->
+      <flexcomp name="torso_flex" type="tet" dof="trilinear"
+                count="3 1 1" spacing="0.35 0.12 0.12"
+                mass="5" rgba="0.8 0.6 0.4 1">
+        <plugin plugin="mujoco.elasticity.solid">
+          <config key="young"   value="5e6"/>
+          <config key="poisson" value="0.45"/>
+        </plugin>
+        <edge equality="true" damping="0.002"/>
+      </flexcomp>
+
+      <!-- small rigid head kept rigid for simplicity -->
+      <geom name="head" type="capsule"
+            pos=".6 0 .1" size="0.046 0.15"
+            axisangle="0 1 0 .87"/>
+
+      <!-- ── rear leg (flex) ── -->
+      <body name="bthigh" pos="-.5 0 0">
+        <joint name="bthigh" type="hinge" axis="0 1 0"
+               stiffness="240" damping="6" range="-.52 1.05"/>
+        <flexcomp name="bthigh_flex" type="tet" dof="trilinear"
+                  count="2 1 1" spacing="0.12 0.1 0.1"
+                  mass="5" rgba="0.2 0.3 0.8 1">
+          <plugin plugin="mujoco.elasticity.solid">
+            <config key="young" value="5e6"/>
+            <config key="poisson" value="0.45"/>
+          </plugin>
+        </flexcomp>
+
+        <body name="bshin" pos=".16 0 -.25">
+          <joint name="bshin" type="hinge" axis="0 1 0"
+                 stiffness="180" damping="4.5" range="-.785 .785"/>
+          <flexcomp name="bshin_flex" type="tet" dof="trilinear"
+                    count="2 1 1" spacing="0.12 0.08 0.08"
+                    mass="5" rgba="0.9 0.6 0.6 1">
+            <plugin plugin="mujoco.elasticity.solid">
+              <config key="young" value="5e6"/>
+              <config key="poisson" value="0.45"/>
+            </plugin>
+          </flexcomp>
+
+          <body name="bfoot" pos="-.28 0 -.14">
+            <joint name="bfoot" type="hinge" axis="0 1 0"
+                   stiffness="120" damping="3" range="-.4 .785"/>
+            <flexcomp name="bfoot_flex" type="tet" dof="trilinear"
+                      count="2 1 1" spacing="0.09 0.06 0.06"
+                      mass="5" rgba="0.9 0.6 0.6 1">
+              <plugin plugin="mujoco.elasticity.solid">
+                <config key="young" value="5e6"/>
+                <config key="poisson" value="0.45"/>
+              </plugin>
+            </flexcomp>
+          </body>
+        </body>
+      </body>
+
+      <!-- ── front leg (flex) ── -->
+      <body name="fthigh" pos=".5 0 0">
+        <joint name="fthigh" type="hinge" axis="0 1 0"
+               stiffness="180" damping="4.5" range="-1 .7"/>
+        <flexcomp name="fthigh_flex" type="tet" dof="trilinear"
+                  count="2 1 1" spacing="0.12 0.1 0.1"
+                  mass="5" rgba="0.2 0.3 0.8 1">
+          <plugin plugin="mujoco.elasticity.solid">
+            <config key="young" value="5e6"/>
+            <config key="poisson" value="0.45"/>
+          </plugin>
+        </flexcomp>
+
+        <body name="fshin" pos="-.14 0 -.24">
+          <joint name="fshin" type="hinge" axis="0 1 0"
+                 stiffness="120" damping="3" range="-1.2 .87"/>
+          <flexcomp name="fshin_flex" type="tet" dof="trilinear"
+                    count="2 1 1" spacing="0.12 0.08 0.08"
+                    mass="5" rgba="0.9 0.6 0.6 1">
+            <plugin plugin="mujoco.elasticity.solid">
+              <config key="young" value="5e6"/>
+              <config key="poisson" value="0.45"/>
+            </plugin>
+          </flexcomp>
+
+          <body name="ffoot" pos=".13 0 -.18">
+            <joint name="ffoot" type="hinge" axis="0 1 0"
+                   stiffness="60" damping="1.5" range="-.5 .5"/>
+            <flexcomp name="ffoot_flex" type="tet" dof="trilinear"
+                      count="2 1 1" spacing="0.09 0.06 0.06"
+                      mass="5" rgba="0.9 0.6 0.6 1">
+              <plugin plugin="mujoco.elasticity.solid">
+                <config key="young" value="5e6"/>
+                <config key="poisson" value="0.45"/>
+              </plugin>
+            </flexcomp>
+          </body>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+
+  <!-- ❺ actuators unchanged -->
+  <actuator>
+    <motor gear="120" joint="bthigh"/>
+    <motor gear="90"  joint="bshin"/>
+    <motor gear="60"  joint="bfoot"/>
+    <motor gear="120" joint="fthigh"/>
+    <motor gear="60"  joint="fshin"/>
+    <motor gear="30"  joint="ffoot"/>
+  </actuator>
+</mujoco>

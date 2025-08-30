@@ -1,0 +1,105 @@
+<?xml version="1.0"?>
+<mujoco model="half_cheetah_softcontact">
+  <!-- compiler / option -->
+  <compiler angle="radian" coordinate="local" inertiafromgeom="true"
+            settotalmass="14"/>
+  <!-- integrator = implicitfast で数値減衰を追加 -->
+  <option timestep="0.002" integrator="implicitfast"
+          gravity="0 0 -9.81" solver="CG" iterations="20"/>
+
+  <!-- default -->
+  <default>
+    <!-- ❶ 全ジオム共通：接触を軟らかく -->
+    <geom type="capsule"
+          friction=".9 .4 .1"
+          solimp="0.95 0.99 0.002"
+          solref="0.04 1"/>
+    <!-- ❷ ジョイント・モーターは元のまま -->
+    <joint armature=".1" damping=".01" limited="true"/>
+    <motor ctrllimited="true" ctrlrange="-1 1"/>
+  </default>
+
+  <!-- assets -->
+  <asset>
+    <texture builtin="checker" name="tex" width="100" height="100"
+             rgb1="0 0 0" rgb2="0.8 0.8 0.8"/>
+    <material name="MatPlane" texture="tex" texrepeat="60 60"
+              specular="0.3" shininess="0.1" reflectance="0.5"/>
+  </asset>
+
+  <!-- world + bodies -->
+  <worldbody>
+
+    <!-- ground plane -->
+    <geom name="floor" type="plane" pos="0 0 0"
+          size="40 40 1" material="MatPlane"/>
+
+    <!-- light -->
+    <light directional="true"
+          diffuse="1 1 1"  specular="0.1 0.1 0.1"
+          pos="0 0 2"       dir="0 0 -1"/>          
+
+    <!-- torso (root) -->
+    <body name="torso" pos="0 0 .7">
+      <!-- camera -->
+      <camera name="track" mode="trackcom" pos="0 -3 0.35"/>
+
+      <!-- root joints -->
+      <joint name="rootx" type="slide" axis="1 0 0" stiffness="0" damping="0" limited="false"/>
+      <joint name="rootz" type="slide" axis="0 0 1" stiffness="0" damping="0" limited="false"/>
+      <joint name="rooty" type="hinge" axis="0 1 0"  stiffness="0" damping="0" limited="false"/>
+
+      <!-- torso geom -->
+      <geom name="torso_geom" size=".046" fromto="-.2 0 0 .28 0 0" rgba=".8 .6 .4 1"/>
+
+      <!-- rear leg -->
+      <body name="bthigh" pos="-.5 0 0">
+        <joint name="bthigh" type="hinge" axis="0 1 0" range="-.52 1.05"/>
+        <geom  name="bthigh_geom" fromto="0 0 0 .3 0 -.3" size=".03" rgba=".2 .3 .8 1"/>
+
+        <body name="bshin" pos=".16 0 -.25">
+          <joint name="bshin" type="hinge" axis="0 1 0" range="-.785 .785"/>
+          <geom  name="bshin_geom" fromto="0 0 0 .25 0 -.25" size=".025" rgba=".9 .6 .6 1"/>
+
+          <body name="bfoot" pos="-.28 0 -.14">
+            <joint name="bfoot" type="hinge" axis="0 1 0" range="-.4 .785"/>
+            <!-- ❸ 足裏だけさらに軟らかい接触 -->
+            <geom name="bfoot_geom" fromto="0 0 0 .2 0 -.0" size=".04"
+                  rgba=".9 .6 .6 1"
+                  solref="0.08 0.8" solimp="0.9 0.97 0.002"/>
+          </body>
+        </body>
+      </body>
+
+      <!-- front leg -->
+      <body name="fthigh" pos=".5 0 0">
+        <joint name="fthigh" type="hinge" axis="0 1 0" range="-1 .7"/>
+        <geom  name="fthigh_geom" fromto="0 0 0 -.3 0 -.3" size=".03" rgba=".2 .3 .8 1"/>
+
+        <body name="fshin" pos="-.14 0 -.24">
+          <joint name="fshin" type="hinge" axis="0 1 0" range="-1.2 .87"/>
+          <geom  name="fshin_geom" fromto="0 0 0 -.24 0 -.24" size=".025" rgba=".9 .6 .6 1"/>
+
+          <body name="ffoot" pos=".13 0 -.18">
+            <joint name="ffoot" type="hinge" axis="0 1 0" range="-.5 .5"/>
+            <!-- 同じく前足も軟らか接触 -->
+            <geom name="ffoot_geom" fromto="0 0 0 -.18 0 -.0" size=".04"
+                  rgba=".9 .6 .6 1"
+                  solref="0.08 0.8" solimp="0.9 0.97 0.002"/>
+          </body>
+        </body>
+      </body>
+
+    </body>
+  </worldbody>
+
+  <!-- actuators -->
+  <actuator>
+    <motor joint="bthigh" gear="120"/>
+    <motor joint="bshin"  gear="90"/>
+    <motor joint="bfoot"  gear="60"/>
+    <motor joint="fthigh" gear="120"/>
+    <motor joint="fshin"  gear="60"/>
+    <motor joint="ffoot"  gear="30"/>
+  </actuator>
+</mujoco>
