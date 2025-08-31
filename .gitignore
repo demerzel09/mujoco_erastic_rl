@@ -1,5 +1,6 @@
 /.venv/
 *.pyc
+.python-version
 toy_text/
 videos/
 videos_gd/
