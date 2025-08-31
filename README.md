@@ -1,15 +1,20 @@
 
 # mujoco_erastic_rl
 
-This is a reinforcement learning environment that uses the simplest PPO and simply sets Mujoco's half-cheetah as an elastic body.   
-(最もシンプルなPPOを用いて、mujocoのハーフチーターを弾性体として設定するだけの強化学習環境です。)   
+<p align="center">
+  <img src="./assets/video/hard_cheetah_13m.gif" width="240" alt="demo gif">
+  <img src="./assets/video/erastic_dump_14m.gif" width="240" alt="demo gif">
+</p>
 
-In the rigid body physics environment of mujico's usual settings, reinforcement learning often leads to unrealistic movements that exploit the repulsive forces at the contact surfaces of rigid bodies.   
-If this is the optimal movement that can be easily acquired in that environment, we experimented to see what would happen if we simply made the environment elastic.   
+This is a reinforcement learning environment that uses the simplest PPO and Mujoco Half-Cheater as elastic bodies in a slippery setting.  
+(最も単純なPPOとMujoco Half-Cheaterを滑りやすい設定の弾性体として使用する強化学習環境です。)   
+
+In mujico's typical rigid body physics environment, reinforcement learning often generates unrealistic movements that exploit the repulsive forces at the contact surfaces of rigid bodies.
+If this is the optimal movement that can be easily acquired in that environment, we experimented with what would happen if the environment were simply made slippery and bouncy.   
 As expected, this alone allowed us to reproduce more natural cheetah movements.   
 
-(通常のmujicoの設定の剛体の物理環境下では強化学習によって剛体接触面の反発力を利用した非現実的な動きが導かれることが多いです。
-もしこれがその環境で容易に獲得できる最適な動きであるならば、環境を単純に弾性体にしたらどうなるかを実験しました。
+(mujico の通常の剛体物理環境では、強化学習によって剛体の接触面の反発力を利用した非現実的な動きが生成されることがよくあります。
+もしこれがその環境で容易に獲得できる最適な動きだとしたら、環境を単純に滑りやすく弾力性のあるものにしたらどうなるかを実験しました。
 予想通り、これだけでより自然なチーターの動きを再現することができました。)   
 
 ## Erastic Half Cheetah config
