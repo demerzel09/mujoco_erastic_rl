@@ -19,7 +19,7 @@ ASSETS = HERE / "assets"
 #ASSETS = HERE / "Gymnasium-1.1.1/gymnasium/envs/mujoco/assets"
 
 XML = ASSETS / "half_cheetah_soft.xml"
-#XML = ASSETS / "half_cheetah.xml" # OK
+## XML = ASSETS / "half_cheetah.xml" # no erastic 
 
 VIDEO_DIR = HERE / "videos"
 VIDEO_DIR.mkdir(exist_ok=True)

@@ -2,5 +2,9 @@
 *.pyc
 toy_text/
 videos/
+videos_gd/
+videos_soft_gd/
+videos_soft/
 
-
+assets/video/cheetah-episode-14550_preview.mp4
+assets/video/soft-cheetah-episode-53000_preview.mp4
