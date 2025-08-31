@@ -17,10 +17,10 @@ As expected, this alone allowed us to reproduce more natural cheetah movements.
 もしこれがその環境で容易に獲得できる最適な動きだとしたら、環境を単純に滑りやすく弾力性のあるものにしたらどうなるかを実験しました。
 予想通り、これだけでより自然なチーターの動きを再現することができました。)   
 
-## Erastic Half Cheetah config
+## Erastic and Slippery Half Cheetah config
 assets/half_cheetah_soft.xml
 
-## env 環境
+## env (環境)
 
 If you are installing it yourself in a proper environment from scratch, please refer to the following.  
 You may encounter some dependency issues.  
@@ -49,33 +49,7 @@ cd ..
 
 ## How to Run
 ```bash
-cd
-```
-
-```python
-import torch
-from ncps.torch import CfC
-
-rnn = CfC(20,50) # (input, hidden units)
-x = torch.randn(2, 3, 20) # (batch, time, features)
-h0 = torch.zeros(2,50) # (batch, units)
-output, hn = rnn(x,h0)
-```
-
-## Usage: Models and Wirings
-
-The package provides two models, the liquid time-constant (LTC) and the closed-form continuous-time (CfC) models.
-Both models are available as ```tf.keras.layers.Layer``` or ```torch.nn.Module``` RNN layers.
-
-
-```python
-from ncps.torch import CfC, LTC
-from ncps.wirings import AutoNCP
-
-wiring = AutoNCP(28, 4) # 28 neurons, 4 outputs
-input_size = 20
-rnn = CfC(input_size, wiring)
-rnn = LTC(input_size, wiring)
+python main.py
 ```
 
 ## Memo 
